@@ -23,10 +23,10 @@ class JHM1200Sensor : public PollingComponent, public i2c::I2CDevice {
   void update() override;
 
  protected:
-  bool read_sensor_data_();
   bool is_sensor_busy_();
   bool send_measurement_command_();
   bool read_data_bytes_(uint8_t *buffer, uint8_t len);
+  void poll_until_ready_(uint8_t polls_left);
   float calculate_temperature_(uint16_t raw_temp);
 
   sensor::Sensor *pressure_sensor_{nullptr};
