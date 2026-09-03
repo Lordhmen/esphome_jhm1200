@@ -12,6 +12,7 @@ static const uint32_t I2C_RETRY_DELAY_MS = 10;
 
 static const uint8_t MAX_BUSY_POLLS = 15;
 static const uint32_t BUSY_POLL_INTERVAL_MS = 20;
+static const uint32_t INITIAL_WAIT_MS = 300;
 
 void JHM1200Sensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up JHM1200 Sensor...");
@@ -38,9 +39,8 @@ void JHM1200Sensor::update() {
     this->status_set_warning();
     return;
   }
-
-  // Wait for measurement to complete, then start the bounded busy-poll.
-  this->set_timeout(5, [this]() { this->poll_until_ready_(MAX_BUSY_POLLS); });
+  
+  this->set_timeout(INITIAL_WAIT_MS, [this]() { this->poll_until_ready_(MAX_BUSY_POLLS); });
 }
 
 bool JHM1200Sensor::send_measurement_command_() {
