@@ -102,6 +102,15 @@ void JHM1200Sensor::poll_until_ready_(uint8_t polls_left) {
   ESP_LOGD(TAG, "Raw Pressure: %u", (unsigned int) press_raw);
   ESP_LOGD(TAG, "Raw Temperature: %u", (unsigned int) temp_raw);
 
+  static constexpr uint32_t PRESS_RAW_MAX = 0xFFFFFF;
+  static constexpr uint16_t TEMP_RAW_MAX = 0xFFFF;
+  if (press_raw == 0 || press_raw == PRESS_RAW_MAX || temp_raw == 0 || temp_raw == TEMP_RAW_MAX) {
+    ESP_LOGW(TAG, "Implausible raw values (pressure=%u, temperature=%u) — likely a corrupted I2C read, discarding",
+             (unsigned int) press_raw, (unsigned int) temp_raw);
+    this->status_set_warning();
+    return;
+  }
+
   // Calculate pressure in kPa
   double press_normalized = (double) press_raw / 16777216.0;
   float pressure_pa = press_normalized * (this->cal_h_ - this->cal_l_) + this->cal_l_;
